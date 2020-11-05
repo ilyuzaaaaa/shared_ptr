@@ -1,3 +1,4 @@
-// Copyright 2018 Your Name <your_email>
-
-#include <header.hpp>
+//Copyright [year] <Copyright Owner>
+// Created by Илюза Янгирова on 06.11.2020.
+//
+#include "SharedPtr.hpp"
