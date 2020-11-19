@@ -49,110 +49,114 @@ class SharedPtr {
 };
 template <typename T>
 SharedPtr<T>::SharedPtr() {
-    counter = nullptr;
+  counter = nullptr;
 }
 
 template <typename T>
 SharedPtr<T>::SharedPtr(T *ptr) {
-    object = ptr;
-    counter = new std::atomic_size_t(1);
+  object = ptr;
+  counter = new std::atomic_size_t(1);
 }
 // Конструктор копирования
 template <typename T>
 SharedPtr<T>::SharedPtr(const SharedPtr &ptr){
-    counter = nullptr;
-    *this = ptr;
+  counter = nullptr;
+  object = ptr.object;
+  counter = ptr.counter;
+  (*counter)++;
 }
 
 // Конструктор перемещения
 template <typename T>
 SharedPtr<T>::SharedPtr(SharedPtr &&ptr) noexcept {
-    counter = nullptr;
-    *this = std::move(ptr);
+  counter = nullptr;
+  object = ptr.object;
+  counter = ptr.counter;
+  ptr.object = nullptr;
+  ptr.counter = nullptr;
 }
 
 template <typename T>
 SharedPtr<T>::~SharedPtr() {
-    if (!counter) return;
-
-    if ((*counter)-- == 0) {
-        delete object;
-        delete counter;
-    }
+  if (!counter) return;
+  if (--(*counter) == 0) {
+    delete object;
+    delete counter;
+  }
 }
 
 template <typename T>
 auto SharedPtr<T>::operator=(const SharedPtr &ptr) -> SharedPtr & {
-    if (this == &ptr) return *this;
+  if (this == &ptr) return *this;
 
-    this->~SharedPtr();
+  this->~SharedPtr();
 
-    object = ptr.object;
-    counter = ptr.counter;
-    (*counter)++;
+  object = ptr.object;
+  counter = ptr.counter;
+  (*counter)++;
 
-    return *this;
+  return *this;
 }
 
 template <typename T>
 auto SharedPtr<T>::operator=(SharedPtr &&ptr) noexcept -> SharedPtr & {
-    if (this == &ptr) return *this;
+  if (this == &ptr) return *this;
 
-    this->~SharedPtr();
+  this->~SharedPtr();
 
-    object = ptr.object;
-    counter = ptr.counter;
-    ptr.object = nullptr;
-    ptr.counter = nullptr;
+  object = ptr.object;
+  counter = ptr.counter;
+  ptr.object = nullptr;
+  ptr.counter = nullptr;
 
-    return *this;
+  return *this;
 }
 
 // проверяет, указывает ли указатель на объект
 template <typename T>
 SharedPtr<T>::operator bool() const {
-    return object != nullptr;
+  return object != nullptr;
 }
 
 template <typename T>
 auto SharedPtr<T>::operator*() const -> T & {
-    return *object;
+  return *object;
 }
 
 template <typename T>
 auto SharedPtr<T>::operator-> () const -> T * {
-    return object;
+  return object;
 }
 
 template <typename T>
 auto SharedPtr<T>::get() -> T * {
-    return object;
+  return object;
 }
 
 template <typename T>
 void SharedPtr<T>::reset() {
-    *this = SharedPtr();
+  *this = std::move(SharedPtr());
 }
 
 template <typename T>
 void SharedPtr<T>::reset(T *ptr) {
-    *this = SharedPtr(ptr);
+  *this = std::move(SharedPtr(ptr));
 }
 
 template <typename T>
 void SharedPtr<T>::swap(SharedPtr &ptr) {
-    std::swap(object, ptr.object);
-    std::swap(counter, ptr.counter);
+  std::swap(object, ptr.object);
+  std::swap(counter, ptr.counter);
 }
 
 // возвращает количество объектов SharedPtr, которые ссылаются на тот же
 // управляемый объект
 template <typename T>
 auto SharedPtr<T>::use_count() const -> size_t {
-    if (counter)
-        return *counter;
-    else
-        return 0;
+  if (counter)
+    return *counter;
+  else
+    return 0;
 }
 
 #endif  // INCLUDE_SHAREDPTR_HPP_
