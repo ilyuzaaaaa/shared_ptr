@@ -1,4 +1,4 @@
-// Copyright 2018 Your Name <your_email>
+// Copyright 2020 Ilyuza Yangirova ilyuza.yangirova@gmail.com
 
 #ifndef INCLUDE_SHAREDPTR_HPP_
 #define INCLUDE_SHAREDPTR_HPP_
@@ -17,10 +17,8 @@ class SharedPtr {
 
   explicit SharedPtr(T *ptr);
 
-  // Конструктор копирования
   SharedPtr(const SharedPtr &ptr);
 
-  // Конструктор перемещения
   SharedPtr(SharedPtr &&ptr) noexcept;
 
   ~SharedPtr();
@@ -29,7 +27,6 @@ class SharedPtr {
 
   auto operator=(SharedPtr &&ptr) noexcept -> SharedPtr &;
 
-  // проверяет, указывает ли указатель на объект
   explicit operator bool() const;
 
   auto operator*() const -> T &;
@@ -43,8 +40,6 @@ class SharedPtr {
   void reset(T *ptr);
 
   void swap(SharedPtr &ptr);
-  // возвращает количество объектов SharedPtr, которые ссылаются на тот же
-  // управляемый объект
   [[nodiscard]] auto use_count() const -> size_t;
 };
 template <typename T>
@@ -57,7 +52,6 @@ SharedPtr<T>::SharedPtr(T *ptr) {
   object = ptr;
   counter = new std::atomic_size_t(1);
 }
-// Конструктор копирования
 template <typename T>
 SharedPtr<T>::SharedPtr(const SharedPtr &ptr){
   counter = nullptr;
@@ -66,7 +60,6 @@ SharedPtr<T>::SharedPtr(const SharedPtr &ptr){
   (*counter)++;
 }
 
-// Конструктор перемещения
 template <typename T>
 SharedPtr<T>::SharedPtr(SharedPtr &&ptr) noexcept {
   counter = nullptr;
@@ -112,7 +105,6 @@ auto SharedPtr<T>::operator=(SharedPtr &&ptr) noexcept -> SharedPtr & {
   return *this;
 }
 
-// проверяет, указывает ли указатель на объект
 template <typename T>
 SharedPtr<T>::operator bool() const {
   return object != nullptr;
@@ -149,8 +141,6 @@ void SharedPtr<T>::swap(SharedPtr &ptr) {
   std::swap(counter, ptr.counter);
 }
 
-// возвращает количество объектов SharedPtr, которые ссылаются на тот же
-// управляемый объект
 template <typename T>
 auto SharedPtr<T>::use_count() const -> size_t {
   if (counter)
