@@ -98,3 +98,9 @@ TEST(SharedPtr, Methods) {
     EXPECT_EQ(*shared_ptr_int.get(), 100);
     EXPECT_EQ(shared_ptr_null.get(), nullptr);
 }
+TEST(SharedPtr, IsMoveConstuctibleAssignable) {
+    EXPECT_TRUE(std::is_move_constructible<SharedPtr<int>>());
+    EXPECT_TRUE(std::is_move_constructible<SharedPtr<std::string>>());
+    EXPECT_TRUE(std::is_move_assignable<SharedPtr<int>>());
+    EXPECT_TRUE(std::is_move_assignable<SharedPtr<std::string>>());
+}
